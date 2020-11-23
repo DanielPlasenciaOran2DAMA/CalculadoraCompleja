@@ -1,6 +1,8 @@
 package dad.javafx.calculadora;
 
 import javafx.application.Application;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.ComboBox;
@@ -14,43 +16,30 @@ import javafx.stage.Stage;
 public class Calculadora extends Application {
 	
 	private TextField aText, bText, cText, dText, resulRealText, resulImaginarioText;
-	private Label masLabel, complejoLabel;
-	private String suma = new String("+");
-	private String resta = new String("-");
-	private String multiplicacion = new String("*");
-	private String divison = new String("/");
-	private String[] operandos = { suma, resta, multiplicacion, divison };
-	private ComboBox<String> operandosCombo;
+	private StringProperty suma = new SimpleStringProperty("+");
+	private StringProperty resta = new SimpleStringProperty("-");
+	private StringProperty multiplicacion = new SimpleStringProperty("*");
+	private StringProperty divison = new SimpleStringProperty("/");
+	private StringProperty[] operandos = { suma, resta, multiplicacion, divison };
+	private ComboBox<StringProperty> operandosCombo;
 	private Separator lineaSeparator;
 
 	public void start(Stage primaryStage) throws Exception {
-		operandosCombo = new ComboBox<String>();
+		operandosCombo = new ComboBox<StringProperty>();
 		operandosCombo.getItems().addAll(operandos);
 		operandosCombo.getSelectionModel().selectFirst();
 		
 		aText = new TextField("0");
 		aText.setMaxWidth(50);
 		
-		masLabel = new Label();
-		masLabel.setText("+");
-		
 		bText = new TextField("0");
 		bText.setMaxWidth(50);
-		
-		complejoLabel = new Label();
-		complejoLabel.setText("i");
 		
 		cText = new TextField("0");
 		cText.setMaxWidth(50);
 		
-		masLabel = new Label();
-		masLabel.setText("+");
-		
 		dText = new TextField("0");
 		dText.setMaxWidth(50);
-		
-		complejoLabel = new Label();
-		complejoLabel.setText("i");
 		
 		lineaSeparator = new Separator();
 		lineaSeparator.setMaxWidth(50);
@@ -58,14 +47,8 @@ public class Calculadora extends Application {
 		resulRealText = new TextField("0");
 		resulRealText.setMaxWidth(50);
 		
-		masLabel = new Label();
-		masLabel.setText("+");
-		
 		resulImaginarioText = new TextField("0");
 		resulImaginarioText.setMaxWidth(50);
-		
-		complejoLabel = new Label();
-		complejoLabel.setText("i");
 		
 		VBox operandosVbox = new VBox();
 		operandosVbox.setAlignment(Pos.CENTER);
@@ -75,17 +58,17 @@ public class Calculadora extends Application {
 		HBox primeraOperacionBox = new HBox();
 		primeraOperacionBox.setAlignment(Pos.CENTER);
 		primeraOperacionBox.setSpacing(5);
-		primeraOperacionBox.getChildren().addAll(aText, bText);
+		primeraOperacionBox.getChildren().addAll(aText, new Label("+"), bText, new Label("i"));
 		
 		HBox segundaOperacionBox = new HBox();
 		segundaOperacionBox.setAlignment(Pos.CENTER);
 		segundaOperacionBox.setSpacing(5);
-		segundaOperacionBox.getChildren().addAll(cText, dText);
+		segundaOperacionBox.getChildren().addAll(cText, new Label("+"), dText, new Label("i"));
 		
 		HBox resultadoBox = new HBox();
 		resultadoBox.setAlignment(Pos.CENTER);
 		resultadoBox.setSpacing(5);
-		resultadoBox.getChildren().addAll(resulRealText, resulImaginarioText);
+		resultadoBox.getChildren().addAll(resulRealText, new Label("+"), resulImaginarioText, new Label("i"));
 		
 		VBox operacionesVbox = new VBox();
 		operacionesVbox.setAlignment(Pos.CENTER);
