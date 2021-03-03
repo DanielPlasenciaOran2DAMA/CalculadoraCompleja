@@ -1,8 +1,6 @@
 package dad.javafx.calculadora;
 
 import javafx.application.Application;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.ComboBox;
@@ -12,69 +10,74 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import javafx.util.converter.NumberStringConverter;
 
 public class Calculadora extends Application {
-	
+
 	private TextField aText, bText, cText, dText, resulRealText, resulImaginarioText;
-	private StringProperty suma = new SimpleStringProperty("+");
-	private StringProperty resta = new SimpleStringProperty("-");
-	private StringProperty multiplicacion = new SimpleStringProperty("*");
-	private StringProperty divison = new SimpleStringProperty("/");
-	private StringProperty[] operandos = { suma, resta, multiplicacion, divison };
-	private ComboBox<StringProperty> operandosCombo;
+	private String suma = "+", resta = "-", multiplicacion = "*", division = "/";
+	private String[] operandos = { suma, resta, multiplicacion, division };
+	private ComboBox<String> operandosCombo;
 	private Separator lineaSeparator;
+	private Complejo primerComplejo, segundoComplejo, resultadoComplejo;
 
 	public void start(Stage primaryStage) throws Exception {
-		operandosCombo = new ComboBox<StringProperty>();
+		operandosCombo = new ComboBox<String>();
 		operandosCombo.getItems().addAll(operandos);
 		operandosCombo.getSelectionModel().selectFirst();
-		
+
+		primerComplejo = new Complejo();
+		segundoComplejo = new Complejo();
+		resultadoComplejo = new Complejo();
+
 		aText = new TextField("0");
 		aText.setMaxWidth(50);
-		
+
 		bText = new TextField("0");
 		bText.setMaxWidth(50);
-		
+
 		cText = new TextField("0");
 		cText.setMaxWidth(50);
-		
+
 		dText = new TextField("0");
 		dText.setMaxWidth(50);
-		
+
 		lineaSeparator = new Separator();
 		lineaSeparator.setMaxWidth(50);
-		
+
 		resulRealText = new TextField("0");
 		resulRealText.setMaxWidth(50);
-		
+		resulRealText.setDisable(true);
+
 		resulImaginarioText = new TextField("0");
 		resulImaginarioText.setMaxWidth(50);
-		
+		resulImaginarioText.setDisable(true);
+
 		VBox operandosVbox = new VBox();
 		operandosVbox.setAlignment(Pos.CENTER);
 		operandosVbox.setSpacing(5);
 		operandosVbox.getChildren().addAll(operandosCombo);
-		
+
 		HBox primeraOperacionBox = new HBox();
 		primeraOperacionBox.setAlignment(Pos.CENTER);
 		primeraOperacionBox.setSpacing(5);
 		primeraOperacionBox.getChildren().addAll(aText, new Label("+"), bText, new Label("i"));
-		
+
 		HBox segundaOperacionBox = new HBox();
 		segundaOperacionBox.setAlignment(Pos.CENTER);
 		segundaOperacionBox.setSpacing(5);
 		segundaOperacionBox.getChildren().addAll(cText, new Label("+"), dText, new Label("i"));
-		
+
 		HBox resultadoBox = new HBox();
 		resultadoBox.setAlignment(Pos.CENTER);
 		resultadoBox.setSpacing(5);
 		resultadoBox.getChildren().addAll(resulRealText, new Label("+"), resulImaginarioText, new Label("i"));
-		
+
 		VBox operacionesVbox = new VBox();
 		operacionesVbox.setAlignment(Pos.CENTER);
 		operacionesVbox.setSpacing(5);
-		operacionesVbox.getChildren().addAll(primeraOperacionBox, segundaOperacionBox, resultadoBox);
-		
+		operacionesVbox.getChildren().addAll(primeraOperacionBox, segundaOperacionBox, lineaSeparator, resultadoBox);
+
 		HBox root = new HBox();
 		root.setSpacing(5);
 		root.setAlignment(Pos.CENTER);
@@ -85,10 +88,53 @@ public class Calculadora extends Application {
 		primaryStage.setTitle("CalculadoraView.fxml");
 		primaryStage.setScene(scene);
 		primaryStage.show();
-		
-		
+
+		aText.textProperty().bindBidirectional(primerComplejo.realProperty(), new NumberStringConverter());
+		bText.textProperty().bindBidirectional(primerComplejo.imaginarioProperty(), new NumberStringConverter());
+		cText.textProperty().bindBidirectional(segundoComplejo.realProperty(), new NumberStringConverter());
+		dText.textProperty().bindBidirectional(segundoComplejo.imaginarioProperty(), new NumberStringConverter());
+
+		resulRealText.textProperty().bindBidirectional(resultadoComplejo.realProperty(), new NumberStringConverter());
+		resulImaginarioText.textProperty().bindBidirectional(resultadoComplejo.imaginarioProperty(),
+				new NumberStringConverter());
+
+		operandosCombo.getSelectionModel().selectedIndexProperty().addListener((o, ov, nv) -> {
+			operacionesComplejas();
+		});
 	}
-	
+
+	private void operacionesComplejas() {
+		if (operandosCombo.getSelectionModel().getSelectedIndex() == 0) {
+			resultadoComplejo.realProperty().bind(primerComplejo.realProperty().add(segundoComplejo.realProperty()));
+			resultadoComplejo.imaginarioProperty()
+					.bind(primerComplejo.imaginarioProperty().add(segundoComplejo.imaginarioProperty()));
+		} else if (operandosCombo.getSelectionModel().getSelectedIndex() == 1) {
+			resultadoComplejo.realProperty()
+					.bind(primerComplejo.realProperty().subtract(segundoComplejo.realProperty()));
+			resultadoComplejo.imaginarioProperty()
+					.bind(primerComplejo.imaginarioProperty().subtract(segundoComplejo.imaginarioProperty()));
+		} else if (operandosCombo.getSelectionModel().getSelectedIndex() == 2) {
+			resultadoComplejo.realProperty()
+					.bind(primerComplejo.realProperty().multiply(segundoComplejo.realProperty()));
+			resultadoComplejo.imaginarioProperty()
+					.bind(primerComplejo.imaginarioProperty().multiply(segundoComplejo.imaginarioProperty()));
+		} else if (operandosCombo.getSelectionModel().getSelectedIndex() == 3) {
+			resultadoComplejo.realProperty()
+					.bind((primerComplejo.realProperty().multiply(segundoComplejo.realProperty())).add((primerComplejo
+							.imaginarioProperty()
+							.multiply(segundoComplejo.imaginarioProperty()
+									.divide(segundoComplejo.realProperty().multiply(segundoComplejo.realProperty()))
+									.add((segundoComplejo.imaginarioProperty()
+											.multiply(segundoComplejo.imaginarioProperty())))))));
+			resultadoComplejo.imaginarioProperty()
+					.bind((primerComplejo.imaginarioProperty().multiply(segundoComplejo.realProperty()))
+							.subtract((primerComplejo.realProperty().multiply(segundoComplejo.imaginarioProperty()
+									.divide(segundoComplejo.realProperty().multiply(segundoComplejo.realProperty()))
+									.add((segundoComplejo.imaginarioProperty()
+											.multiply(segundoComplejo.imaginarioProperty())))))));
+		}
+	}
+
 	public static void main(String[] args) {
 		launch(args);
 	}
